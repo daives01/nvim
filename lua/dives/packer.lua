@@ -6,6 +6,9 @@ vim.cmd [[packadd packer.nvim]]
 return require('packer').startup(function(use)
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
+  use('neovim/nvim-lspconfig')
+  use('MunifTanjim/prettier.nvim')
+  use('jose-elias-alvarez/null-ls.nvim')
 
   use {
 	  'nvim-telescope/telescope.nvim', tag = '0.1.5',
@@ -41,5 +44,4 @@ return require('packer').startup(function(use)
 		  {'L3MON4D3/LuaSnip'},
 	  }
   }
-
 end), {}
