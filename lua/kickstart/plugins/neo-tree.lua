@@ -14,7 +14,9 @@ return {
     { '<C-/>', ':Neotree reveal<CR>', { desc = 'NeoTree reveal' } },
   },
   opts = {
+    sources = { 'filesystem', 'git_status' },
     filesystem = {
+      follow_current_file = { enabled = true },
       window = {
         mappings = {
           ['<C-/>'] = 'close_window',
