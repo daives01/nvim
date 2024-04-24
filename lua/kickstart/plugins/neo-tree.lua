@@ -11,7 +11,7 @@ return {
   },
   cmd = 'Neotree',
   keys = {
-    { '<C-/>', ':Neotree reveal<CR>', { desc = 'NeoTree reveal' } },
+    { '<C-_>', ':Neotree reveal<CR>', { desc = 'NeoTree reveal' } },
   },
   opts = {
     sources = { 'filesystem', 'git_status' },
@@ -19,7 +19,7 @@ return {
       follow_current_file = { enabled = true },
       window = {
         mappings = {
-          ['<C-/>'] = 'close_window',
+          ['<C-_>'] = 'close_window',
         },
       },
     },
