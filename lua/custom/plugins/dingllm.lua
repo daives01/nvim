@@ -7,48 +7,6 @@ return {
     local helpful_prompt = 'You are a helpful assistant. What I have sent are my notes so far.'
     local dingllm = require 'dingllm'
 
-    -- local function handle_open_router_spec_data(data_stream)
-    --   local success, json = pcall(vim.json.decode, data_stream)
-    --   if success then
-    --     if json.choices and json.choices[1] and json.choices[1].text then
-    --       local content = json.choices[1].text
-    --       if content then
-    --         dingllm.write_string_at_cursor(content)
-    --       end
-    --     end
-    --   else
-    --     print('non json ' .. data_stream)
-    --   end
-    -- end
-    --
-    -- local function custom_make_openai_spec_curl_args(opts, prompt)
-    --   local url = opts.url
-    --   local api_key = opts.api_key_name and os.getenv(opts.api_key_name)
-    --   local data = {
-    --     prompt = prompt,
-    --     model = opts.model,
-    --     temperature = 0.7,
-    --     stream = true,
-    --   }
-    --   local args = { '-N', '-X', 'POST', '-H', 'Content-Type: application/json', '-d', vim.json.encode(data) }
-    --   if api_key then
-    --     table.insert(args, '-H')
-    --     table.insert(args, 'Authorization: Bearer ' .. api_key)
-    --   end
-    --   table.insert(args, url)
-    --   return args
-    -- end
-    --
-    -- local function llama_405b_base()
-    --   dingllm.invoke_llm_and_stream_into_editor({
-    --     url = 'https://openrouter.ai/api/v1/chat/completions',
-    --     model = 'meta-llama/llama-3.1-405b',
-    --     api_key_name = 'OPEN_ROUTER_API_KEY',
-    --     max_tokens = '128',
-    --     replace = false,
-    --   }, custom_make_openai_spec_curl_args, handle_open_router_spec_data)
-    -- end
-
     local function groq_replace()
       dingllm.invoke_llm_and_stream_into_editor({
         url = 'https://api.groq.com/openai/v1/chat/completions',
@@ -72,7 +30,7 @@ return {
     local function openai_replace()
       dingllm.invoke_llm_and_stream_into_editor({
         url = 'https://api.openai.com/v1/chat/completions',
-        model = 'gpt-4o-mini',
+        model = 'gpt-4o',
         api_key_name = 'OPENAI_API_KEY',
         system_prompt = system_prompt,
         replace = true,
@@ -82,7 +40,7 @@ return {
     local function openai_help()
       dingllm.invoke_llm_and_stream_into_editor({
         url = 'https://api.openai.com/v1/chat/completions',
-        model = 'gpt-4o-mini',
+        model = 'gpt-4o',
         api_key_name = 'OPENAI_API_KEY',
         system_prompt = helpful_prompt,
         replace = false,
@@ -109,17 +67,27 @@ return {
       }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
     end
 
-    local function right_window()
-      -- Create a new buffer
+    local function ask_window()
       local bufnr = vim.api.nvim_create_buf(false, true)
+      -- vim.api.nvim_buf_set_name(bufnr, 'ask.md')
       vim.api.nvim_buf_set_option(bufnr, 'bufhidden', 'wipe')
+      vim.api.nvim_buf_set_option(bufnr, 'filetype', 'md')
 
       -- Get the current window width
       local win_width = vim.api.nvim_win_get_width(0)
 
       -- Calculate dimensions for the new window
       local width = math.floor(win_width * 0.4)
-      local height = vim.api.nvim_win_get_height(0)
+
+      local prompt = ''
+      local filetype = '```' .. vim.bo.filetype
+      local visual_lines = dingllm.get_visual_selection()
+      if visual_lines then
+        prompt = filetype .. '\n' .. table.concat(visual_lines, '\n') .. '\n```'
+
+        local prompt_lines = vim.split(prompt, '\n') -- Split the prompt into a list of strings
+        vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, prompt_lines)
+      end
 
       -- Open a new window on the right
       vim.cmd 'vsplit'
@@ -127,22 +95,11 @@ return {
       local win = vim.api.nvim_get_current_win()
       vim.api.nvim_win_set_buf(win, bufnr)
 
-      -- Check if we are in visual mode
-      if vim.fn.mode() == 'v' or vim.fn.mode() == 'V' or vim.fn.mode() == '\22' then
-        -- Get the selected text
-        local start_line, start_col = unpack(vim.api.nvim_buf_get_mark(0, '<'))
-        local end_line, end_col = unpack(vim.api.nvim_buf_get_mark(0, '>'))
-        local lines = vim.api.nvim_buf_get_text(0, start_line - 1, start_col, end_line - 1, end_col + 1, {})
-
-        -- Add backticks to the selected text
-        local snippet = { '```' }
-        vim.list_extend(snippet, lines)
-        table.insert(snippet, '```')
-
-        -- Set the content of the buffer
-        vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, snippet)
-      end
+      -- Set the cursor to the bottom of the buffer
+      local line_count = vim.api.nvim_buf_line_count(bufnr)
+      vim.api.nvim_win_set_cursor(win, { line_count, 0 })
     end
+
     -- local function anthropic_help()
     --   dingllm.invoke_llm_and_stream_into_editor({
     --     url = 'https://api.anthropic.com/v1/messages',
@@ -173,6 +130,6 @@ return {
     -- vim.keymap.set({ 'n', 'v' }, '<leader>i', anthropic_replace, { desc = 'llm anthropic' })
     -- vim.keymap.set({ 'n', 'v' }, '<leader>o', llama_405b_base, { desc = 'llama base' })
 
-    vim.keymap.set({ 'n', 'v' }, '<leader>xx', right_window, { desc = 'Open Blank Chat' })
+    vim.keymap.set({ 'n', 'v' }, '<leader>xx', ask_window, { desc = 'Open Blank Chat' })
   end,
 }
