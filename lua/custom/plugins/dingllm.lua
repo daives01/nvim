@@ -93,7 +93,7 @@ return {
       dingllm.invoke_llm_and_stream_into_editor({
         url = 'localhost:11434/v1/chat/completions',
         model = 'llama3.1',
-        api_key_name = 'ollama',
+        api_key_name = 'deepseek-coder-v2:latest',
         system_prompt = system_prompt,
         replace = true,
       }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
@@ -103,7 +103,7 @@ return {
       dingllm.invoke_llm_and_stream_into_editor({
         url = 'localhost:11434/v1/chat/completions',
         model = 'llama3.1',
-        api_key_name = 'ollama',
+        api_key_name = 'deepseek-coder-v2:latest',
         system_prompt = helpful_prompt,
         replace = false,
       }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
