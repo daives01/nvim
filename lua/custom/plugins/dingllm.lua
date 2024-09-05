@@ -60,13 +60,12 @@ return {
     local function ollama_help()
       dingllm.invoke_llm_and_stream_into_editor({
         url = 'localhost:11434/v1/chat/completions',
-        model = 'llama3.1',
+        model = 'llama3.1:latest',
         api_key_name = 'deepseek-coder-v2:latest',
         system_prompt = helpful_prompt,
         replace = false,
       }, dingllm.make_openai_spec_curl_args, dingllm.handle_openai_spec_data)
     end
-
     local function ask_window()
       local bufnr = vim.api.nvim_create_buf(false, true)
       -- vim.api.nvim_buf_set_name(bufnr, 'ask.md')
